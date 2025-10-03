@@ -128,17 +128,28 @@ public class VertexIDAssignerTest {
         Edge e = v1.addEdge("knows", v2);
         e.property("prop", "old");
         graph.tx().commit();
-        assertEquals("old", graph.traversal().E().next().property("prop").value());
-        assertEquals(1, (long) graph.traversal().E().count().next());
+
+        assertEquals("old", graph.traversal().E().next().property("prop").value(),
+                "Edge property 'prop' should be 'old' after first commit.");
+
+        assertEquals(1, (long) graph.traversal().E().count().next(), 
+                "There should be exactly 1 edge in the graph after first commit.");
+
         Object id = graph.traversal().E().next().id();
 
         // VertexIDAssigner shouldn't assign a new id if the edge is an existing one
         e = graph.traversal().E().next();
         e.property("prop", "new");
         graph.tx().commit();
-        assertEquals("new", graph.traversal().E().next().property("prop").value());
-        assertEquals(1, (long) graph.traversal().E().count().next());
-        assertEquals(id, graph.traversal().E().next().id());
+
+        assertEquals("new", graph.traversal().E().next().property("prop").value(),
+                "Edge property 'prop' should be updated to 'new' after second commit.");
+
+        assertEquals(1, (long) graph.traversal().E().count().next(), 
+                "There should still be exactly 1 edge in the graph after second commit.");
+
+        assertEquals(id, graph.traversal().E().next().id(),
+                "The ID of the existing edge should not change after updating its property.");
     }
 
     @ParameterizedTest
